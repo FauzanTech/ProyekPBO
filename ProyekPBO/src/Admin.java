@@ -110,26 +110,12 @@ public class Admin {
     }
 
     void createTableRoster() throws SQLException{
-<<<<<<< HEAD
-        String query = "CREATE TABLE IF NOT EXISTS roster (id_prodi int(11) NOT NULL, id_jurusan int(11) NOT NULL, kode_matkul varchar(255) NOT NULL, kode_ruangan varchar(255) NOT NULL, waktu varchar(50) NOT NULL, nidn varchar(20) NOT NULL, FOREIGN KEY (id_prodi) REFERENCES prodi(id_prodi), FOREIGN KEY (nidn) REFERENCES dosen(nidn), FOREIGN KEY (kode_ruangan) REFERENCES ruangan(kode_ruangan), FOREIGN KEY (kode_matkul) REFERENCES mata_kuliah(kode_matkul), FOREIGN KEY (id_jurusan) REFERENCES jurusan(id_jurusan))";
-=======
         String query = "CREATE TABLE IF NOT EXISTS roster (hari varchar(20) NOT NULL, singkatan_kelas varchar(255) NOT NULL, kode_matkul varchar(255) NOT NULL, kode_ruangan varchar(255) NOT NULL, waktu varchar(50) NOT NULL, nidn varchar(20) NOT NULL, FOREIGN KEY (singkatan_kelas) REFERENCES kelas(singkatan_kelas), FOREIGN KEY (nidn) REFERENCES dosen(nidn), FOREIGN KEY (kode_ruangan) REFERENCES ruangan(kode_ruangan), FOREIGN KEY (kode_matkul) REFERENCES mata_kuliah(kode_matkul))";
->>>>>>> dc5220d (commit from pc lab)
         Statement stmt = ConnectionDB.getConnection().createStatement();
         stmt.execute(query);
     }
 
     Admin() throws SQLException{
-<<<<<<< HEAD
-        String query = "SELECT * FROM admin";
-        Statement stmt = ConnectionDB.getConnection().createStatement();
-        ResultSet res = stmt.executeQuery(query);
-        if(!res.next()){
-            createTableUser();
-            createTableAdmin();
-            insertDataAdmin();
-        }
-=======
         // String query = "SELECT * FROM admin";
         // Statement stmt = ConnectionDB.getConnection().createStatement();
         // ResultSet res = stmt.executeQuery(query);
@@ -138,7 +124,6 @@ public class Admin {
         createTableUser();
         createTableAdmin();
         insertDataAdmin();
->>>>>>> dc5220d (commit from pc lab)
         createTableKelas();
         createTableProdi();
         createTableJurusan();
