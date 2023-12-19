@@ -1,4 +1,4 @@
-public class Dosen {
+public class Dosen extends Roster{
     public String namaDosen, NIP, dosenProdi;
 
     // public String memesanRuangan() {}
