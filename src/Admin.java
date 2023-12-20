@@ -353,6 +353,7 @@ public class Admin {
 
     
     public void tampilkanDataMahasiswa() throws SQLException{
+        System.out.println("\nDaftar Informasi Mahasiswa: ");
         String query = "SELECT m.*, p.prodi, j.jurusan FROM mahasiswa m JOIN prodi p ON m.id_prodi = p.id_prodi JOIN jurusan j ON m.id_jurusan = j.id_jurusan";
         Statement stmt = ConnectionDB.getConnection().createStatement();
         ResultSet res = stmt.executeQuery(query);
@@ -362,7 +363,21 @@ public class Admin {
             System.out.println("Kelas: " + res.getString("singkatan_kelas"));
             System.out.println("Jurusan: " + res.getString("jurusan"));
             System.out.println("Prodi: " + res.getString("prodi"));
-            System.out.println();
+            System.out.println("--------------------------------");
+        }
+    }
+
+    public void tampilkanDataDosen() throws SQLException{
+        System.out.println("\nDaftar Informasi Dosen: ");
+        String query = "SELECT d.*, p.prodi, j.jurusan FROM dosen d JOIN prodi p ON d.id_prodi = p.id_prodi JOIN jurusan j ON d.id_jurusan = j.id_jurusan";
+        Statement stmt = ConnectionDB.getConnection().createStatement();
+        ResultSet res = stmt.executeQuery(query);
+        while (res.next()) {
+            System.out.println("Nama: " + res.getString("nama"));
+            System.out.println("NIDN: " + res.getString("nidn"));
+            System.out.println("Jurusan: " + res.getString("jurusan"));
+            System.out.println("Prodi: " + res.getString("prodi"));
+            System.out.println("--------------------------------");
         }
     }
 

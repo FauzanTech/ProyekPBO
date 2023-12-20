@@ -85,10 +85,11 @@ public class ITHCM{
         System.out.println("7. Edit Password Akun Dosen");
         System.out.println("8. Menambahkan Ruangan");
         System.out.println("9. Tampilkan data mahasiswa");
-        System.out.println("10. Berikan akses ke mahasiswa");
-        System.out.println("11. Hapus jadwal");
-        System.out.println("12. Tampilkan roster");
-        System.out.println("13. Quit");
+        System.out.println("10. Tampilkan data dosen");
+        System.out.println("11. Berikan akses ke mahasiswa");
+        System.out.println("12. Hapus jadwal");
+        System.out.println("13. Tampilkan roster");
+        System.out.println("14. Quit");
         System.out.println("___________________________________");
         System.out.print("Pilih menu: ");
     }
@@ -123,15 +124,17 @@ public class ITHCM{
                 Roster.tambahkanRuangan();
             } else if (menu.equals("9")){
                 adm.tampilkanDataMahasiswa();
-            } else if (menu.equals("10")) {
-                adm.berikanAkses();
             } else if (menu.equals("11")) {
-                Roster.tampilkanRoster();
-                Roster.deleteJadwal();
+                adm.berikanAkses();
             } else if (menu.equals("12")) {
                 Roster.tampilkanRoster();
+                Roster.deleteJadwal();
             } else if (menu.equals("13")) {
+                Roster.tampilkanRoster();
+            } else if (menu.equals("14")) {
                 break;
+            } else if (menu.equals("10")) {
+                adm.tampilkanDataDosen();
             } else {
                 System.out.println("Masukkan nomor menu yang sesuai! ");
             }
