@@ -94,7 +94,8 @@ public class Roster {
 
     static void memesanRuangan() throws SQLException{
         Scanner scn = new Scanner(System.in);
-
+        Roster.tampilkanRoster();
+        
         System.out.print("Masukkan jadwal: ");
         String jadwal = scn.nextLine();
 
