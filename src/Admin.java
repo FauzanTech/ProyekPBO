@@ -7,8 +7,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 public class Admin {
-    public String namaAdmin;
-    private String userEmail;
 
     void createTableAdmin() throws SQLException{
         String query = "CREATE TABLE IF NOT EXISTS admin (id int(11) PRIMARY KEY AUTO_INCREMENT, email varchar(50) NOT NULL, password varchar(50) NOT NULL, FOREIGN KEY (email) REFERENCES user(email))";
@@ -81,10 +79,6 @@ public class Admin {
         stmt.execute(query);
     }
 
-    // void insertJurusan() throws SQLException {
-    //     String query = "INSERT INTO jurusan ()"
-    // }
-
     void createTableKelas() throws SQLException {
         String query = "CREATE TABLE IF NOT EXISTS kelas (singkatan_kelas varchar(255) PRIMARY KEY, nama_kelas varchar(255) NOT NULL)";
         Statement stmt = ConnectionDB.getConnection().createStatement();
@@ -111,6 +105,36 @@ public class Admin {
 
     void createTableRoster() throws SQLException{
         String query = "CREATE TABLE IF NOT EXISTS roster (hari varchar(20), singkatan_kelas varchar(255) NOT NULL, kode_matkul varchar(255) NOT NULL, kode_ruangan varchar(255) NOT NULL, waktu varchar(50) NOT NULL, nidn varchar(20) NOT NULL, FOREIGN KEY (singkatan_kelas) REFERENCES kelas(singkatan_kelas), FOREIGN KEY (nidn) REFERENCES dosen(nidn), FOREIGN KEY (kode_ruangan) REFERENCES ruangan(kode_ruangan), FOREIGN KEY (kode_matkul) REFERENCES mata_kuliah(kode_matkul))";
+        Statement stmt = ConnectionDB.getConnection().createStatement();
+        stmt.execute(query);
+    }
+
+    void insertKelas() throws SQLException{
+        String query = "INSERT INTO kelas(singkatan_kelas, nama_kelas) VALUES ('IK22-A','Ilmu Komputer 2022 A'),('IK22-B','Ilmu Komputer 2022 B'),('IK22-C','Ilmu Komputer 2022 C'),('IK22-D','Ilmu Komputer 2022 D'),('SI22-A','Sistem Informasi 2022 A'),('SI22-B','Sistem Informasi 2022 B'),('SI22-C','Sistem Informasi 2022 C'),('MA22','Matematika 2022'),('IK23-A','Ilmu Komputer 2023 A'),('IK23-B','Ilmu Komputer 2023 B'),('IK23-C','Ilmu Komputer 2023 C'),('IK23-D','Ilmu Komputer 2023 D'),('IK23-E','Ilmu Komputer 2023 E'),('IK23-AB','Ilmu Komputer 2023 AB'),('IK23-CDE','Ilmu Komputer 2023 CDE'),('SI23-A','Sistem Informasi 2023 A'),('SI23-B','Sistem Informasi 2023 B'),('SI23-C','Sistem Informasi 2023 C'),('SI23-D','Sistem Informasi 2023 D'),('SI23-AB','Sistem Informasi 2023 AB'),('SI23-CD','Sistem Informasi 2023 CD'),('TP23','Teknologi Pangan 2023'),('TM23','Teknik Metalurgi 2023'),('TE23','Teknik Sistem Energi 2023'),('MA23','Matematika 2023'),('SD23','Sains Data 2023'),('GP23-A','Gabungan Kelas TP23, TM23 dan TE23'),('GP23-B','Gabungan Kelas MA23 dan SD23'),('GP23','Gabungan Kelas TP23, TM23, TE23, MA23 dan SD23')";
+        Statement stmt = ConnectionDB.getConnection().createStatement();
+        stmt.execute(query);
+    }
+    
+    void insertMatkul() throws SQLException {
+        String query = "INSERT INTO mata_kuliah(kode_matkul, nama_matkul, sks) VALUES ('ISLAM','Agama Islam'),('KRISTEN','Agama Kristen'),('PANCASILA','Pancasila'),('BAHASA','Bahasa Indonesia'),('KALDAS 1','Kalkulus Dasar I'),('PROG','Pengantar Pemrograman'),('PTI','Pengantar Teknologi Informasi'),('DIGITAL','Pengantar Sistem Digital'),('SAINSTER','Sains Terpadu'),('CINTA','Wawasan Cinta IPTEK dan IMTAQ'),('IMK','Interaksi Manusia Komputer'),('ALIN','Aljabar Linear'),('TECHNO','Technopreneurship'),('PBO','Pemrograman Berbasis Objek'),('SBD','Sistem Basis Data'),('SO','Sistem Operasi'),('JARKOM','Jaringan Komputer'),('RTI','Riset Teknologi Informasi'),('APS','Analisis dan Perancangan Sistem'),('SBD2','Sistem Basis Data II'),('DGTX','Transformasi Digital'),('SCM','Supply Chain Management'),('MATDIS','Matematika Diskrit'),('KALJUT','Kalkulus Lanjut'),('PDB','Persamaan Diferensial Biasa'),('ASBWEB','Analisis Suku Bunga Berbasis Web'),('MABIZTEK','Matematika Bisnis dan Teknologi')";
+        Statement stmt = ConnectionDB.getConnection().createStatement();
+        stmt.execute(query);    
+    }
+
+    void insertRuangan() throws SQLException {
+        String query = "INSERT INTO ruangan (kode_ruangan, nama_ruangan, kapasitas) VALUES ('101', 'MACCA', '40'), ('102', 'MAKKAWARU', '50'), ('103', 'MARESO', '50'), ('104', 'MAGETTENG', '50'), ('202', 'MALEBBI', '50'), ('203', 'MATEPPE', '50'), ('205', 'MATOTO', '50'), ('206', 'MAMASE', '50')";
+        Statement stmt = ConnectionDB.getConnection().createStatement();
+        stmt.execute(query);
+    }
+
+    void insertJurusan() throws SQLException {
+        String query = "INSERT INTO jurusan (id_jurusan, jurusan) VALUES ('1', 'Teknologi Produksi dan Industri'), ('2', 'Sains');";
+        Statement stmt = ConnectionDB.getConnection().createStatement();
+        stmt.execute(query);
+    }
+    
+    void insertProdi() throws SQLException {
+        String query = "INSERT INTO prodi (id_prodi, prodi) VALUES ('1', 'Ilmu Komputer'), ('2', 'Teknologi Pangan'), ('3', 'Teknik Sistem Energi'), ('4', 'Teknik Metalurgi'), ('5', 'Sistem Informasi'), ('6', 'Matematika'), ('7', 'Sains Data'), ('8', 'Sains Aktuaria');";
         Statement stmt = ConnectionDB.getConnection().createStatement();
         stmt.execute(query);
     }
@@ -153,7 +177,7 @@ public class Admin {
     public boolean tambahkanAkunMahasiswa() throws SQLException{
         // this.createTableMahasiswa();
         var scn = new Scanner(System.in);
-        String nama, kelas, query, nim, password;
+        String nama, userEmail, kelas, query, nim, password;
         int id_jurusan, id_prodi;
         
         System.out.print("Masukkan email mahasiswa: ");
@@ -178,7 +202,7 @@ public class Admin {
         stmt.setString(2, password);
         stmt.setString(3, "mahasiswa");
         int result = stmt.executeUpdate();
-        scn.close();
+        // scn.close();
         if(result > 0){
             query = "INSERT INTO mahasiswa (nim, nama, singkatan_kelas, id_jurusan, id_prodi, email) VALUE (?, ?, ?, ?, ?, ?)";
             PreparedStatement stmt2 = ConnectionDB.getConnection().prepareStatement(query);
@@ -203,7 +227,7 @@ public class Admin {
     public boolean tambahkanAkunDosen() throws SQLException{
         // this.createTableDosen();
         var scn = new Scanner(System.in);
-        String nama, query, password, nidn;
+        String nama, userEmail, query, password, nidn;
         int id_jurusan, id_prodi;
         
         System.out.print("Masukkan email dosen: ");
@@ -245,14 +269,6 @@ public class Admin {
             System.out.println("Insert data gagal!");
             return false;
         }
-    }
-    
-    static void menuEditAkunMhs() {
-        System.out.println("Menu Edit Akun Mahasiswa:");
-        System.out.println("1. Edit nama");
-        System.out.println("2. Edit Kelas");
-        System.out.println("3. Edit Password");
-        System.out.print("Menu yang dipilih: ");
     }
 
     public void editNamaMahasiswa() throws SQLException {
@@ -349,8 +365,6 @@ public class Admin {
         }
         // scn.close();
     }
-
-
     
     public void tampilkanDataMahasiswa() throws SQLException{
         System.out.println("\nDaftar Informasi Mahasiswa: ");
@@ -363,6 +377,7 @@ public class Admin {
             System.out.println("Kelas: " + res.getString("singkatan_kelas"));
             System.out.println("Jurusan: " + res.getString("jurusan"));
             System.out.println("Prodi: " + res.getString("prodi"));
+            System.out.println("Akses: " + res.getBoolean("akses"));
             System.out.println("--------------------------------");
         }
     }
@@ -381,24 +396,33 @@ public class Admin {
         }
     }
 
-    public void berikanAkses() throws SQLException{
+    public boolean berikanAkses() throws SQLException{
         Scanner scn = new Scanner(System.in);
         System.out.print("Masukkan nim: ");
         String nim = scn.nextLine();
 
-        String query = "UPDATE mahasiswa SET akses = true WHERE nim = ?";
+        String query = "SELECT m.akses FROM mahasiswa m WHERE m.nim = ?"; 
         PreparedStatement stmt = ConnectionDB.getConnection().prepareStatement(query);
         stmt.setString(1, nim);
-        int res = stmt.executeUpdate();
+        ResultSet akses = stmt.executeQuery();
+        akses.next();
+        if(akses.getBoolean("akses") == true){
+            System.out.println("Mahasiswa sudah memiliki akses");
+            return true;
+        } 
+
+        String query2 = "UPDATE mahasiswa SET akses = true WHERE nim = ?";
+        PreparedStatement stmt2 = ConnectionDB.getConnection().prepareStatement(query2);
+        stmt2.setString(1, nim);
+        int res = stmt2.executeUpdate();
         if(res > 0){
             System.out.println("Berhasil memberikan akses!");
+            return true;
         } else {
             System.out.println("Gagal memberikan akses!");
+            return false;
         }
         // scn.close();
     }
-
-    // public String editRuangan() {}
-
 
 }

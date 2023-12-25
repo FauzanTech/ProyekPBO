@@ -1,43 +1,54 @@
-import java.io.*;
-// import java.io.OutputStreamWriter;
-// import java.io.FileWriter;
-// import java.io.FileWriter.filewriter;
-// import java.io.IOException;
-// import java.io.BufferedWriter;
+import java.io.File;
+import java.util.Scanner;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
 
 public class Aktivitas {
+    static String namaFile = "aktivitas.txt";
 
     public static void createFile() {
-        try {
-            File myObj = new File("aktivitas.txt");
-            myObj.createNewFile();
-            // if (myObj.createNewFile()) {
-            //   System.out.println("File created: " + myObj.getName());
-            // } else {
-            //   System.out.println("File already exists.");
-            // }
-          } catch (IOException e) {
-            System.out.println("An error occurred.");
+        try{
+            File obj = new File(namaFile);
+            if(obj.createNewFile()) {
+                FileWriter writer = new FileWriter(namaFile);
+                writer.write("Daftar aktivitas user: ");
+                writer.close();
+            } else {
+            }
+        } catch (IOException e) {
+            System.out.println("Error: ");
             e.printStackTrace();
-          }
+        }
     }
 
-    public static void writeFile() {
-
+    public static void readFile() {
         try {
-            BufferedWriter writer = new BufferedWriter(new FileWriter("aktivitas.txt"));
-            writer.write("Daftar Aktivitas User: ");
-            writer.close();
-
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
+            File Obj = new File(namaFile);
+            Scanner Reader = new Scanner(Obj);
+            while (Reader.hasNextLine()) {
+                String data = Reader.nextLine();
+                System.out.println(data);
+            }
+            Reader.close();
+        }
+        catch (FileNotFoundException e) {
+            System.out.println("Error: ");
             e.printStackTrace();
         }
 
-    }    
-
-    public static void main(String[] args) {
-        Aktivitas.createFile();
-        // Aktivitas.writeFile();
     }
+
+    public static void writeFile(String kalimat) {
+        try {
+            FileWriter Writer = new FileWriter(namaFile, true);
+            Writer.write("\n" + kalimat);
+            Writer.close();
+        }
+        catch (IOException e) {
+            System.out.println("Error: ");
+            e.printStackTrace();
+        }
+    }
+
 }
