@@ -7,88 +7,114 @@ import java.time.LocalDateTime;
 
 public class ITHCM{
     private String email, password, status;
-    String nama, no_induk, jurusan, prodi;
+    String nama, no_induk, jurusan, prodi, kelas;
     
     public boolean login() throws SQLException{
         var scn = new Scanner(System.in);
         var dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
         var now = LocalDateTime.now();
-        System.out.print("Email: ");
-        email = scn.next();
-        System.out.print("Password: ");
-        password = scn.next();
-        System.out.print("Status: ");
-        status = scn.next();
 
-        if(status.toLowerCase().equals("admin")){
-            String query = "SELECT * FROM admin WHERE email = ? AND password = ?";
-            PreparedStatement stmt = ConnectionDB.getConnection().prepareStatement(query);
-            stmt.setString(1, email);
-            stmt.setString(2, password);
-            ResultSet result = stmt.executeQuery();
-    
-            if(result.next()){
-                System.out.println("\n\nSelamat Datang, si "+ result.getString("id"));
-                System.out.println();
-                
-                return true;
-            }
-            else {
-                System.out.println("Akun tidak ditemukan !");
-                
-                return false;
-            }
-        } else if (status.toLowerCase().equals("mahasiswa") || status.toLowerCase().equals("mhs")){
-            String query = "SELECT * FROM mahasiswa m JOIN user u ON m.email = u.email JOIN jurusan j ON m.id_jurusan=j.id_jurusan JOIN prodi p ON m.id_prodi=p.id_prodi WHERE u.email = ? AND u.password = ?";
-            PreparedStatement stmt = ConnectionDB.getConnection().prepareStatement(query);
-            stmt.setString(1, email);
-            stmt.setString(2, password);
-            ResultSet result = stmt.executeQuery();
-    
-            if(result.next()){
-                nama = result.getString("nama");
-                no_induk = result.getString("nim");
-                jurusan = result.getString("jurusan");
-                prodi = result.getString("prodi");
-                String kalimat = nama + "/" + no_induk + "/"  + prodi + "/"  + jurusan + " ---> " + dtf.format(now);
-                Aktivitas.writeFile(kalimat + " Action: Login");
-                System.out.println("\n\nSelamat Datang, "+ nama);
-                System.out.println("NIM: " + no_induk);
-                
-                return true;
-            }
-            else {
-                System.out.println("Akun tidak ditemukan !");
-                
-                return false;
-            }
-        } else if (status.toLowerCase().equals("dosen")){
-            String query = "SELECT * FROM dosen d JOIN user u ON d.email = u.email JOIN jurusan j ON d.id_jurusan=j.id_jurusan JOIN prodi p ON d.id_prodi=p.id_prodi WHERE u.email = ? AND u.password = ?";
-            PreparedStatement stmt = ConnectionDB.getConnection().prepareStatement(query);
-            stmt.setString(1, email);
-            stmt.setString(2, password);
-            ResultSet result = stmt.executeQuery();
+        while (true) {
             
-            if(result.next()){
-                nama = result.getString("nama");
-                no_induk = result.getString("nidn");
-                jurusan = result.getString("jurusan");
-                prodi = result.getString("prodi");
-                String kalimat = nama + "/" + no_induk + "/"  + prodi + "/"  + jurusan + " ---> " + dtf.format(now);
-                Aktivitas.writeFile(kalimat + " Action: Login");
-                System.out.println("\n\nSelamat Datang, ");
-                System.out.println("NIDN: ");
-                
-                return true;
+            System.out.print("Email: ");
+            email = scn.next();
+    
+            if(!Admin.checkFormatEmail(email)) {
+                System.out.println("Email tidak valid!");
+                continue;
             }
-            else {
-                System.out.println("Akun tidak ditemukan !");
+    
+            System.out.print("Password: ");
+            password = scn.next();
+    
+            if(!Admin.checkPasswordEmail(email, password)){
+                continue;
+            }
+            System.out.print("Status: ");
+            status = scn.next();
+    
+            if(status.toLowerCase().equals("admin")){
+                String query = "SELECT a.* FROM admin a JOIN user u ON a.email=u.email WHERE a.email = ? AND u.password = ?";
+                PreparedStatement stmt = ConnectionDB.getConnection().prepareStatement(query);
+                stmt.setString(1, email);
+                stmt.setString(2, password);
+                ResultSet result = stmt.executeQuery();
+        
+                if(result.next()){
+                    System.out.println("\n\nSelamat Datang, si "+ result.getString("id"));
+                    System.out.println();
+                    
+                    return true;
+                }
+                else {
+                    System.out.println("Akun tidak ditemukan !");
+                    
+                    return false;
+                }
+            } else if (status.toLowerCase().equals("mahasiswa") || status.toLowerCase().equals("mhs")){
+                String query = 
+                """
+                SELECT * FROM mahasiswa m 
+                JOIN user u ON m.email = u.email 
+                JOIN jurusan j ON m.id_jurusan=j.id_jurusan 
+                JOIN prodi p ON m.id_prodi=p.id_prodi 
+                WHERE u.email = ? AND u.password = ?""";
+                PreparedStatement stmt = ConnectionDB.getConnection().prepareStatement(query);
+                stmt.setString(1, email);
+                stmt.setString(2, password);
+                ResultSet result = stmt.executeQuery();
+        
+                if(result.next()){
+                    nama = result.getString("nama");
+                    no_induk = result.getString("nim");
+                    jurusan = result.getString("jurusan");
+                    prodi = result.getString("prodi");
+                    kelas = result.getString("singkatan_kelas");
+                    String kalimat = nama + "/" + no_induk + "/"  + prodi + "/"  + jurusan + " ---> " + dtf.format(now);
+                    Aktivitas.writeFile(kalimat + " Action: Login");
+                    System.out.println("\n\nSelamat Datang, "+ nama);
+                    System.out.println("NIM: " + no_induk);
+                    
+                    return true;
+                }
+                else {
+                    System.out.println("Akun tidak ditemukan !");
+                    
+                    return false;
+                }
+            } else if (status.toLowerCase().equals("dosen")){
+                String query = """
+                SELECT * FROM dosen d 
+                JOIN user u ON d.email = u.email 
+                JOIN jurusan j ON d.id_jurusan=j.id_jurusan 
+                JOIN prodi p ON d.id_prodi=p.id_prodi 
+                WHERE u.email = ? AND u.password = ?""";
+                PreparedStatement stmt = ConnectionDB.getConnection().prepareStatement(query);
+                stmt.setString(1, email);
+                stmt.setString(2, password);
+                ResultSet result = stmt.executeQuery();
+                
+                if(result.next()){
+                    nama = result.getString("nama");
+                    no_induk = result.getString("nidn");
+                    jurusan = result.getString("jurusan");
+                    prodi = result.getString("prodi");
+                    String kalimat = nama + "/" + no_induk + "/"  + prodi + "/"  + jurusan + " ---> " + dtf.format(now);
+                    Aktivitas.writeFile(kalimat + " Action: Login");
+                    System.out.println("\n\nSelamat Datang, " + nama);
+                    System.out.println("NIDN: " + no_induk);
+                    
+                    return true;
+                }
+                else {
+                    System.out.println("Akun tidak ditemukan !");
+                    
+                    return false;
+                }
+            } else {
                 
                 return false;
             }
-        } else {
-            
-            return false;
         }
 
     }
@@ -102,14 +128,15 @@ public class ITHCM{
         System.out.println("5. Edit Password Akun Mahasiswa");
         System.out.println("6. Edit Nama Akun Dosen");
         System.out.println("7. Edit Password Akun Dosen");
-        System.out.println("8. Menambahkan Ruangan");
-        System.out.println("9. Tampilkan data mahasiswa");
-        System.out.println("10. Tampilkan data dosen");
-        System.out.println("11. Berikan akses ke mahasiswa");
-        System.out.println("12. Hapus jadwal");
-        System.out.println("13. Tampilkan roster");
-        System.out.println("14. Memesan ruangan");
-        System.out.println("15. Quit");
+        System.out.println("8. Tampilkan Ruangan");
+        System.out.println("9. Menambahkan Ruangan");
+        System.out.println("10. Tampilkan data mahasiswa");
+        System.out.println("11. Tampilkan data dosen");
+        System.out.println("12. Berikan akses ke mahasiswa");
+        System.out.println("13. Hapus jadwal");
+        System.out.println("14. Tampilkan roster");
+        System.out.println("15. Memesan ruangan");
+        System.out.println("16. Quit");
         System.out.println("___________________________________");
         System.out.print("Pilih menu: ");
     }
@@ -137,23 +164,29 @@ public class ITHCM{
                 adm.editNamaDosen();
             } else if (menu.equals("7")){
                 adm.editPassDosen();
-            } else if (menu.equals("8")){
-                Roster.tambahkanRuangan();
             } else if (menu.equals("9")){
+                Roster.tambahkanRuangan();
+            } else if (menu.equals("10")){
                 adm.tampilkanDataMahasiswa();
-            } else if (menu.equals("11")) {
-                adm.berikanAkses();
             } else if (menu.equals("12")) {
-                Roster.tampilkanRoster();
-                Roster.deleteJadwal();
+                adm.berikanAkses();
             } else if (menu.equals("13")) {
-                Roster.tampilkanRoster();
+                Roster.deleteJadwal();
             } else if (menu.equals("14")) {
-                Roster.memesanRuangan();
+                Roster.tampilkanRoster();
             } else if (menu.equals("15")) {
+                int ruangKosong = Roster.checkRoster();
+                if(ruangKosong != 0){
+                    Roster.memesanRuangan();
+                } else {
+                    System.out.println("Tidak bisa memesan ruangan, jadwal penuh! ");
+                }
+            } else if (menu.equals("16")) {
                 break;
-            } else if (menu.equals("10")) {
+            } else if (menu.equals("11")) {
                 adm.tampilkanDataDosen();
+            } else if (menu.equals("8")) {
+                Roster.tampilkanRuangan();
             } else {
                 System.out.println("Masukkan nomor menu yang sesuai! ");
             }
@@ -167,7 +200,8 @@ public class ITHCM{
         System.out.println("1. Tampilkan ruangan");
         System.out.println("2. Tampilkan roster");
         System.out.println("3. Pesan ruangan");
-        System.out.println("4. Quit");
+        System.out.println("4. Hapus Jadwal");
+        System.out.println("5. Quit");
         System.out.println("___________________________________");
         System.out.print("Pilih menu: ");
     }
@@ -206,11 +240,19 @@ public class ITHCM{
                         Roster.tampilkanRoster();
                         Aktivitas.writeFile(kalimat + " Action: Menampilkan Roster");
                     } else if (menu.equals("3")) {
-                        Dosen.tampilkanNidn();
-                        Roster.memesanRuangan();
-                        Aktivitas.writeFile(kalimat + " Action: Memesan Ruangan");
-                    } else if (menu.equals("4")){
+                        int ruangKosong = Roster.checkRoster();
+                        if(ruangKosong != 0){
+                            Roster.tampilkanNidn();
+                            Roster.memesanRuangan(kelas);
+                            Aktivitas.writeFile(kalimat + " Action: Memesan Ruangan");
+                        } else {
+                            System.out.println("Tidak bisa memesan ruangan, jadwal penuh! ");
+                        }
+                    } else if (menu.equals("5")){
                         break;
+                    } else if (menu.equals("4")){
+                        Roster.deleteJadwal();
+                        Aktivitas.writeFile(kalimat + " Action: Membatalkan Pemesanan Ruangan");
                     } else {
                         System.out.println("Masukkan nomor sesuai pada menu!");
                     }
@@ -244,7 +286,8 @@ public class ITHCM{
         System.out.println("1. Tampilkan ruangan");
         System.out.println("2. Tampilkan roster");
         System.out.println("3. Pesan ruangan");
-        System.out.println("4. Quit");
+        System.out.println("4. Hapus jadwal");
+        System.out.println("5. Quit");
         System.out.println("___________________________________");
         System.out.print("Pilih menu: ");
     }
@@ -266,10 +309,19 @@ public class ITHCM{
                 Roster.tampilkanRoster();
                 Aktivitas.writeFile(kalimat + " Action: Menampilkan Roster");
             } else if (menu.equals("3")) {
-                Roster.memesanRuangan();
-                Aktivitas.writeFile(kalimat + " Action: Memesan Ruangan");
-            } else if (menu.equals("4")){
+                int ruangKosong = Roster.checkRoster();
+                if(ruangKosong != 0){
+                    Roster.memesanRuangan();
+                    Aktivitas.writeFile(kalimat + " Action: Memesan Ruangan");
+                } else {
+                    System.out.println("Tidak bisa memesan ruangan, jadwal penuh! ");
+                }
+            } else if (menu.equals("5")){
                 break;
+            } else if (menu.equals("4")){
+                Roster.deleteJadwal();
+                Aktivitas.writeFile(kalimat + " Action: Membatalkan Pemesanan Ruangan");
+
             } else {
                 System.out.println("Masukkan nomor sesuai pada menu!");
             }
@@ -291,6 +343,6 @@ public class ITHCM{
         } else if (obj.status.equals("dosen") && kondisi) {
             obj.actionDosen();
         }
-        
+        scn.close();
     }
 }

@@ -1,6 +1,5 @@
 import java.util.Scanner;
-// import java.sql.Connection;
-// import java.sql.Statement;
+import java.util.regex.Pattern;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -9,7 +8,12 @@ import java.sql.Statement;
 public class Admin {
 
     void createTableAdmin() throws SQLException{
-        String query = "CREATE TABLE IF NOT EXISTS admin (id int(11) PRIMARY KEY AUTO_INCREMENT, email varchar(50) NOT NULL, password varchar(50) NOT NULL, FOREIGN KEY (email) REFERENCES user(email))";
+        String query = """
+            CREATE TABLE IF NOT EXISTS admin (id int(11) 
+            PRIMARY KEY AUTO_INCREMENT, 
+            email varchar(50) NOT NULL,  
+            FOREIGN KEY (email) REFERENCES user(email))
+                """;
         var stmt = ConnectionDB.getConnection().createStatement();
         stmt.execute(query);
         System.out.println("Pembuatan table berhasil!");
@@ -25,10 +29,9 @@ public class Admin {
         stmt.setString(3, "admin");
         int result = stmt.executeUpdate();
         if(result > 0){
-            query = "INSERT INTO admin (email, password) VALUE (?, ?)";
+            query = "INSERT INTO admin (email) VALUE (?)";
             var stmt2 = ConnectionDB.getConnection().prepareStatement(query);
             stmt2.setString(1, email);
-            stmt2.setString(2, pass);
             result = stmt2.executeUpdate();
             if(result > 0){
                 System.out.println("Insert data berhasil!");
@@ -140,22 +143,22 @@ public class Admin {
     }
 
     Admin() throws SQLException{
-        String query = "SELECT * FROM admin";
-        Statement stmt = ConnectionDB.getConnection().createStatement();
-        ResultSet res = stmt.executeQuery(query);
-        if(!res.next()){
-            createTableUser();
-            createTableAdmin();
-            insertDataAdmin();
-        }
-        createTableKelas();
-        createTableProdi();
-        createTableJurusan();
-        createTableMahasiswa();
-        createTableDosen();
-        createTableMatkul();
-        createTableRuangan();
-        createTableRoster();
+        // String query = "SELECT * FROM admin";
+        // Statement stmt = ConnectionDB.getConnection().createStatement();
+        // ResultSet res = stmt.executeQuery(query);
+        // if(!res.next()){
+            // }
+        // createTableUser();
+        // createTableAdmin();
+        // insertDataAdmin();
+        // createTableKelas();
+        // createTableProdi();
+        // createTableJurusan();
+        // createTableMahasiswa();
+        // createTableDosen();
+        // createTableMatkul();
+        // createTableRuangan();
+        // createTableRoster();
     }
     public static void main(String[] args) throws SQLException{
         Admin adm = new Admin();
@@ -174,54 +177,109 @@ public class Admin {
         stmt.execute(query);
     }
 
+    public static boolean checkFormatEmail(String email){
+        String regexPatternEmail = "^(?=.{1,64}@)[A-Za-z0-9_-]+(\\.[A-Za-z0-9_-]+)*@[^-][A-Za-z0-9-]+(\\.[A-Za-z0-9-]+)*(\\.[A-Za-z]{2,})$";
+        if (!Pattern.compile(regexPatternEmail).matcher(email).matches()) {
+            return false;
+        }
+        return true;
+    }
+
+    static boolean checkDuplicateEmail(String email) throws SQLException {
+        String query = "SELECT * FROM user WHERE email = ?";
+        PreparedStatement stmt = ConnectionDB.getConnection().prepareStatement(query);
+        stmt.setString(1, email);
+        ResultSet res = stmt.executeQuery();
+
+        if(res.next()){
+            return true;
+        }
+        return false;
+    }
+
     public boolean tambahkanAkunMahasiswa() throws SQLException{
         // this.createTableMahasiswa();
         var scn = new Scanner(System.in);
         String nama, userEmail, kelas, query, nim, password;
         int id_jurusan, id_prodi;
-        
-        System.out.print("Masukkan email mahasiswa: ");
-        userEmail = scn.nextLine();
-        System.out.print("Masukkan password mahasiswa: ");
-        password = scn.nextLine();
-        System.out.println("===================================");
-        System.out.print("Masukkan nama mahasiswa: ");
-        nama = scn.nextLine();
-        System.out.print("Masukkan kelas mahasiswa: ");
-        kelas = scn.nextLine();
-        System.out.print("Masukkan NIM mahasiswa: ");
-        nim = scn.nextLine();
-        System.out.print("Masukkan jurusan mahasiswa: ");
-        id_jurusan = scn.nextInt();
-        System.out.print("Masukkan prodi mahasiswa: ");
-        id_prodi = scn.nextInt();
-        
-        query = "INSERT INTO user (email, password, status) VALUE (?, ?, ?)";
-        PreparedStatement stmt = ConnectionDB.getConnection().prepareStatement(query);
-        stmt.setString(1, userEmail);
-        stmt.setString(2, password);
-        stmt.setString(3, "mahasiswa");
-        int result = stmt.executeUpdate();
-        // scn.close();
-        if(result > 0){
-            query = "INSERT INTO mahasiswa (nim, nama, singkatan_kelas, id_jurusan, id_prodi, email) VALUE (?, ?, ?, ?, ?, ?)";
-            PreparedStatement stmt2 = ConnectionDB.getConnection().prepareStatement(query);
-            stmt2.setString(1, nim);
-            stmt2.setString(2, nama);
-            stmt2.setString(3, kelas);
-            stmt2.setInt(4, id_jurusan);
-            stmt2.setInt(5, id_prodi);
-            stmt2.setString(6, userEmail);
-            result = stmt2.executeUpdate();
-            if(result > 0){
-                System.out.println("Insert data berhasil!");
-                return true;
+
+        while(true){
+            
+            System.out.print("Masukkan email mahasiswa: ");
+            userEmail = scn.nextLine();
+    
+            if (!checkFormatEmail(userEmail)) {
+                System.out.println("Email tidak valid!");
+                continue;
             }
-            return false;
-        } else {
-            System.out.println("Insert data gagal!");
-            return false;
+
+            if (checkDuplicateEmail(userEmail)){
+                System.out.println("Email sudah terpakai.");
+                continue;
+            }
+    
+            System.out.print("Masukkan password mahasiswa: ");
+            password = scn.nextLine();
+            System.out.println("===================================");
+            System.out.print("Masukkan nama mahasiswa: ");
+            nama = scn.nextLine();
+            System.out.print("Masukkan kelas mahasiswa: ");
+            kelas = scn.nextLine();
+            System.out.print("Masukkan NIM mahasiswa: ");
+            nim = scn.nextLine();
+            System.out.print("Masukkan jurusan mahasiswa: ");
+            id_jurusan = scn.nextInt();
+            System.out.print("Masukkan prodi mahasiswa: ");
+            id_prodi = scn.nextInt();
+            
+            query = "INSERT INTO user (email, password, status) VALUE (?, ?, ?)";
+            PreparedStatement stmt = ConnectionDB.getConnection().prepareStatement(query);
+            stmt.setString(1, userEmail);
+            stmt.setString(2, password);
+            stmt.setString(3, "mahasiswa");
+            int result = stmt.executeUpdate();
+            // scn.close();
+            if(result > 0){
+                query = "INSERT INTO mahasiswa (nim, nama, singkatan_kelas, id_jurusan, id_prodi, email) VALUE (?, ?, ?, ?, ?, ?)";
+                PreparedStatement stmt2 = ConnectionDB.getConnection().prepareStatement(query);
+                stmt2.setString(1, nim);
+                stmt2.setString(2, nama);
+                stmt2.setString(3, kelas);
+                stmt2.setInt(4, id_jurusan);
+                stmt2.setInt(5, id_prodi);
+                stmt2.setString(6, userEmail);
+                result = stmt2.executeUpdate();
+                if(result > 0){
+                    System.out.println("Insert data berhasil!");
+                    return true;
+                }
+                return false;
+            } else {
+                System.out.println("Insert data gagal!");
+                return false;
+            }
         }
+        
+    }
+
+    public static boolean checkPasswordEmail(String email, String password) throws SQLException {
+        String query = "SELECT * FROM user WHERE email = ?";
+        PreparedStatement stmt = ConnectionDB.getConnection().prepareStatement(query);
+        stmt.setString(1, email);
+        ResultSet res = stmt.executeQuery();
+
+        if(res.next()){
+            if(res.getString("password").equals(password)){
+                return true;
+            } else {
+                System.out.println("Password salah!");
+                return false;
+            }
+        }
+        System.out.println("Akun tidak ditemukan.");
+        return false;
+
+        // return res.next();
     }
 
     public boolean tambahkanAkunDosen() throws SQLException{
@@ -229,46 +287,61 @@ public class Admin {
         var scn = new Scanner(System.in);
         String nama, userEmail, query, password, nidn;
         int id_jurusan, id_prodi;
-        
-        System.out.print("Masukkan email dosen: ");
-        userEmail = scn.nextLine();
-        System.out.print("Masukkan password dosen: ");
-        password = scn.nextLine();
-        System.out.println("===================================");
-        System.out.print("Masukkan nama dosen: ");
-        nama = scn.nextLine();
-        System.out.print("Masukkan nidn dosen: ");
-        nidn = scn.nextLine();
-        System.out.print("Masukkan jurusan dosen: ");
-        id_jurusan = scn.nextInt();
-        System.out.print("Masukkan prodi dosen: ");
-        id_prodi = scn.nextInt();
 
-        query = "INSERT INTO user (email, password, status) VALUE (?, ?, ?)";
-        PreparedStatement stmt = ConnectionDB.getConnection().prepareStatement(query);
-        stmt.setString(1, userEmail);
-        stmt.setString(2, password);
-        stmt.setString(3, "dosen");
-        int result = stmt.executeUpdate();
-        // scn.close();
-        if(result > 0){
-            query = "INSERT INTO dosen (nidn, nama, id_jurusan, id_prodi, email) VALUE (?, ?, ?, ?, ?)";
-            PreparedStatement stmt2 = ConnectionDB.getConnection().prepareStatement(query);
-            stmt2.setString(1, nidn);
-            stmt2.setString(2, nama);
-            stmt2.setInt(3, id_jurusan);
-            stmt2.setInt(4, id_prodi);
-            stmt2.setString(5, userEmail);
-            result = stmt2.executeUpdate();
-            if(result > 0){
-                System.out.println("Insert data berhasil!");
-                return true;
+        while(true) {
+            
+            System.out.print("Masukkan email dosen: ");
+            userEmail = scn.nextLine();
+    
+            if (!checkFormatEmail(userEmail)) {
+                System.out.println("Email tidak valid!");
+                continue;
             }
-            return false;
-        } else {
-            System.out.println("Insert data gagal!");
-            return false;
+
+            if (checkDuplicateEmail(userEmail)){
+                System.out.println("Email sudah terpakai.");
+                continue;
+            }
+    
+            System.out.print("Masukkan password dosen: ");
+            password = scn.nextLine();
+            System.out.println("===================================");
+            System.out.print("Masukkan nama dosen: ");
+            nama = scn.nextLine();
+            System.out.print("Masukkan nidn dosen: ");
+            nidn = scn.nextLine();
+            System.out.print("Masukkan jurusan dosen: ");
+            id_jurusan = scn.nextInt();
+            System.out.print("Masukkan prodi dosen: ");
+            id_prodi = scn.nextInt();
+    
+            query = "INSERT INTO user (email, password, status) VALUE (?, ?, ?)";
+            PreparedStatement stmt = ConnectionDB.getConnection().prepareStatement(query);
+            stmt.setString(1, userEmail);
+            stmt.setString(2, password);
+            stmt.setString(3, "dosen");
+            int result = stmt.executeUpdate();
+            // scn.close();
+            if(result > 0){
+                query = "INSERT INTO dosen (nidn, nama, id_jurusan, id_prodi, email) VALUE (?, ?, ?, ?, ?)";
+                PreparedStatement stmt2 = ConnectionDB.getConnection().prepareStatement(query);
+                stmt2.setString(1, nidn);
+                stmt2.setString(2, nama);
+                stmt2.setInt(3, id_jurusan);
+                stmt2.setInt(4, id_prodi);
+                stmt2.setString(5, userEmail);
+                result = stmt2.executeUpdate();
+                if(result > 0){
+                    System.out.println("Insert data berhasil!");
+                    return true;
+                }
+                return false;
+            } else {
+                System.out.println("Insert data gagal!");
+                return false;
+            }
         }
+        
     }
 
     public void editNamaMahasiswa() throws SQLException {
@@ -368,7 +441,7 @@ public class Admin {
     
     public void tampilkanDataMahasiswa() throws SQLException{
         System.out.println("\nDaftar Informasi Mahasiswa: ");
-        String query = "SELECT m.*, p.prodi, j.jurusan FROM mahasiswa m JOIN prodi p ON m.id_prodi = p.id_prodi JOIN jurusan j ON m.id_jurusan = j.id_jurusan";
+        String query = "SELECT m.*, p.prodi, j.jurusan FROM mahasiswa m JOIN prodi p ON m.id_prodi = p.id_prodi JOIN jurusan j ON m.id_jurusan = j.id_jurusan ORDER BY m.nim ASC";
         Statement stmt = ConnectionDB.getConnection().createStatement();
         ResultSet res = stmt.executeQuery(query);
         while (res.next()) {
@@ -384,7 +457,7 @@ public class Admin {
 
     public void tampilkanDataDosen() throws SQLException{
         System.out.println("\nDaftar Informasi Dosen: ");
-        String query = "SELECT d.*, p.prodi, j.jurusan FROM dosen d JOIN prodi p ON d.id_prodi = p.id_prodi JOIN jurusan j ON d.id_jurusan = j.id_jurusan";
+        String query = "SELECT d.*, p.prodi, j.jurusan FROM dosen d JOIN prodi p ON d.id_prodi = p.id_prodi JOIN jurusan j ON d.id_jurusan = j.id_jurusan ORDER BY d.nidn ASC";
         Statement stmt = ConnectionDB.getConnection().createStatement();
         ResultSet res = stmt.executeQuery(query);
         while (res.next()) {
@@ -401,28 +474,33 @@ public class Admin {
         System.out.print("Masukkan nim: ");
         String nim = scn.nextLine();
 
-        String query = "SELECT m.akses FROM mahasiswa m WHERE m.nim = ?"; 
-        PreparedStatement stmt = ConnectionDB.getConnection().prepareStatement(query);
-        stmt.setString(1, nim);
-        ResultSet akses = stmt.executeQuery();
-        akses.next();
-        if(akses.getBoolean("akses") == true){
-            System.out.println("Mahasiswa sudah memiliki akses");
-            return true;
-        } 
-
-        String query2 = "UPDATE mahasiswa SET akses = true WHERE nim = ?";
-        PreparedStatement stmt2 = ConnectionDB.getConnection().prepareStatement(query2);
-        stmt2.setString(1, nim);
-        int res = stmt2.executeUpdate();
-        if(res > 0){
-            System.out.println("Berhasil memberikan akses!");
-            return true;
-        } else {
-            System.out.println("Gagal memberikan akses!");
+        try {
+            String query = "SELECT m.akses FROM mahasiswa m WHERE m.nim = ?"; 
+            PreparedStatement stmt = ConnectionDB.getConnection().prepareStatement(query);
+            stmt.setString(1, nim);
+            ResultSet akses = stmt.executeQuery();
+            akses.next();
+            if(akses.getBoolean("akses") == true){
+                System.out.println("Mahasiswa sudah memiliki akses");
+                return true;
+            } 
+    
+            String query2 = "UPDATE mahasiswa SET akses = true WHERE nim = ?";
+            PreparedStatement stmt2 = ConnectionDB.getConnection().prepareStatement(query2);
+            stmt2.setString(1, nim);
+            int res = stmt2.executeUpdate();
+            if(res > 0){
+                System.out.println("Berhasil memberikan akses!");
+                return true;
+            } else {
+                System.out.println("Gagal memberikan akses!");
+                return false;
+            }
+        } catch (Exception e) {
+            System.out.println("Terjadi kesalahan! ");
+            berikanAkses();
             return false;
         }
-        // scn.close();
     }
 
 }
